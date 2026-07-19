@@ -31,7 +31,7 @@ else:
     initial_cf = st.number_input("Initial cash flow (CF0)", value=0.0)
 
 
-# Forecast cash flows
+# Forecast cash flows. One input box per period 
 cfs = []
 cf = initial_cf
 for i in range(1, int(forecast_periods) + 1):
@@ -40,7 +40,7 @@ for i in range(1, int(forecast_periods) + 1):
 
 
 # Per phase inputs:
-phases = []
+phases = [] #list of dictionaries storing the total phases and their values 
 for i in range(int(growth_phases)):
     st.subheader(f"Phase {i+1}")
     growth = (
@@ -61,6 +61,7 @@ for i in range(int(growth_phases)):
         length = None
         st.caption("Perpetuities have no defined length")
     else:
+        #asks for length if it is not a perpetuity 
         length = st.number_input(
             f"Enter the length of phase {i+1} (periods)",
             min_value=1,
@@ -77,7 +78,7 @@ for i in range(int(growth_phases)):
         }
     )
 
-# Dataframe using input values:
+# Display phase inputs
 df_phases = pd.DataFrame(phases)
 st.write("### Phase Inputs")
 st.dataframe(df_phases)
@@ -90,7 +91,7 @@ def pva_growing(cf1, r, g, n):
     return (cf1 / (r - g)) * (1 - ((1 + g) / (1 + r)) ** n)
 
 
-# PV of phase discounted to today
+# PV of phase discounted to today (infinite stream)
 def pv_perpetuity(cf1, r, g):
     if g >= r:
         st.error("Growth rate must be less than discount rate.")
@@ -106,9 +107,8 @@ def phase_pv(cf1, r, g, n, previous_periods, terminal_type):
         value_start = pva_growing(cf1, r, g, n)
     return value_start / (1 + r) ** previous_periods
 
-
+# Main calculations
 def main():
-    # Main calculations
     r = discount_rate
 
     # Discrete forecast PV
@@ -120,6 +120,7 @@ def main():
     prior_cf = cfs[-1] if cfs else initial_cf
     is_first_application = not cfs
 
+    # Per phase cash flow and discounted PV 
     for idx, p in enumerate(phases):
         g = p["growth_rate"]
         n = p["length"]
@@ -146,6 +147,7 @@ def main():
     else:
         final_value = total_pv
 
+    # Display results as a table 
     st.write("#### Valuation Breakdown")
     df_breakdown = pd.DataFrame(breakdown)
     st.dataframe(df_breakdown)
