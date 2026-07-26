@@ -150,7 +150,7 @@ def build_duration_table(par, coupon_rate, ytm, years, payments_per_year=2):
         )
 
     if bond_price == 0:
-        raise ZeroDivisionError("Bond Price is 0. Check par and coupon rate inputs")
+        raise ZeroDivisionError("Par value cannot be negative")
 
     for row in rows:
         row["Weight"] = row["PV of CF"] / bond_price
