@@ -203,7 +203,59 @@ def inject_css():
             border-radius: 8px;
             overflow: hidden;
         }}
-        </style>
+        /* ---------- tabs ---------- */
+                button[data-baseweb="tab"] {{
+                    font-family: 'IBM Plex Mono', monospace !important;
+                    font-size: 0.8rem !important;
+                    letter-spacing: 0.06em;
+                    text-transform: uppercase;
+                    color: {TEXT_MUTED} !important;
+                }}
+                button[data-baseweb="tab"][aria-selected="true"] {{
+                    color: {ACCENT_AMBER} !important;
+                }}
+                div[data-baseweb="tab-highlight"] {{
+                    background-color: {ACCENT_AMBER} !important;
+                }}
+                div[data-baseweb="tab-border"] {{
+                    background-color: {BORDER} !important;
+                }}
+        
+                /* ---------- recommendation badge ---------- */
+                .rec-panel {{
+                    background: {PANEL};
+                    border: 1px solid {BORDER};
+                    border-radius: 10px;
+                    padding: 1.3rem 1.6rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 1.6rem;
+                    height: 100%;
+                    flex-wrap: wrap;
+                }}
+                .rec-metrics {{ display: flex; gap: 2.2rem; flex-wrap: wrap; }}
+                .rec-metric-label {{
+                    font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem;
+                    letter-spacing: 0.06em; color: {TEXT_MUTED}; margin-bottom: 0.25rem;
+                }}
+                .rec-metric-value {{
+                    font-family: 'IBM Plex Mono', monospace; font-size: 1.35rem;
+                    font-weight: 600; color: {TEXT_PRIMARY};
+                }}
+                .rec-badge {{
+                    font-family: 'Space Grotesk', sans-serif;
+                    font-weight: 700;
+                    font-size: 1.15rem;
+                    letter-spacing: 0.08em;
+                    border-radius: 8px;
+                    padding: 0.7rem 1.4rem;
+                    white-space: nowrap;
+                }}
+                .rec-buy {{ color: {ACCENT_CYAN}; border: 1px solid {ACCENT_CYAN}66; background: {ACCENT_CYAN}18; }}
+                .rec-sell {{ color: {ACCENT_RED}; border: 1px solid {ACCENT_RED}66; background: {ACCENT_RED}18; }}
+                .rec-hold {{ color: {ACCENT_AMBER}; border: 1px solid {ACCENT_AMBER}66; background: {ACCENT_AMBER}18; }}
+                </style>
         """,
         unsafe_allow_html=True,
     )
