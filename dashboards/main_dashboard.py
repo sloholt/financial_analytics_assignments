@@ -1,7 +1,7 @@
 """
 Bond Valuation Dashboard
 
-Run with: streamlit run bond_valuation_dashboard.py
+Run with: streamlit run main_dashboard.py
 
 Pulls styling from dashboard_design.py, math and logic from bond_valuation_calculations.py
 and rendering from functions.py
