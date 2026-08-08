@@ -20,7 +20,9 @@ dashboard_design.inject_css()
 # Hero:
 functions.render_hero(title="Bond & Stock Valuation", eyebrow="SYSTEM OVERVIEW")
 
-bond_tab, stock_tab = st.tabs(["Bond Valuation", "Stock Valuation (DDM)"])
+bond_tab, stock_tab, project_tab = st.tabs(
+    ["Bond Valuation", "Stock Valuation (DDM)", "Project Valuation"]
+)
 
 with bond_tab:
     # Input modules:
