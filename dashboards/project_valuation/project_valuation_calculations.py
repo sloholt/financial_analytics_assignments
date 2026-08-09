@@ -100,10 +100,20 @@ def calculate_payback(cf_schedule):
     return last_neg_period + remaining / next_period_cf
 
 
+# TODO:
 # GO decision
+def is_go(irr, payback_period, management_target, npv, discrate):
+    decisions = {"NPV": "No Go", "Payback Period": "No Go", "IRR": "No Go"}
+    if npv > 0:
+        decisions["NPV"] = "Go"
+    if payback_period <= management_target:
+        decisions["Payback Period"] = "Go"
+    if irr > discrate:
+        decisions["IRR"] = "Go"
+    return decisions
 
 
-# Test Helper Function
+# Test Helper Function using inputs from class excel model
 def tests():
     pro_forma_sched = pro_forma_cf_schedule(
         50000, 4, 2.5, 3, 17430.00, 90000.00, 0, 30000.00, 0.1, 0.21
@@ -111,11 +121,10 @@ def tests():
     npv = calculate_npv(pro_forma_sched, discrate=0.2)
     irr = calculate_irr(pro_forma_sched)
     pb = calculate_payback(pro_forma_sched)
+    go = is_go(irr, pb, management_target=2, npv=npv, discrate=0.2)
 
     print("The Pro Forma cash flows for each period are:", pro_forma_sched)
     print("The Net Present Value is:", npv)
     print("The Internal Rate of Return is:", irr)
     print("The Payback Period is:", pb)
-
-
-tests()
+    print("The Decision Rules are as follows:", go)
