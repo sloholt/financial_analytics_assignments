@@ -55,9 +55,83 @@ def calculate_nwc_schedule(revenue_sched, nwcreq, term):
     """ "Returns the required NWC balance at each period, pegged to the next period's revenue (pre-funding),
     fully unwound (0) at the terminal period"""
     return {
-        t: (0.0 if t == term else nwcreq * revenue_sched[t + t])
+        t: (0.0 if t == term else nwcreq * revenue_sched[t + 1])
         for t in range(term + 1)
     }
+
+
+def build_pro_forma_table(
+    initial_revenue,
+    growth_rate,
+    gross_margin,
+    term,
+    base_opex,
+    opex_step_up_threshold,
+    opex_step_up_pct,
+    capex,
+    disposal,
+    nwcreq,
+    taxrate,
+):
+    """Assembles the full Revenue -> FCF pro forma line-item schedule as a list of
+    per-period dicts. Exposes the intermediate lines (Revenue, Gross Profit, Opex, D&A, EBIT, Taxes, NOPAT,
+    Operating CF, Delta NWC, CapEx/Disposal, FCF) instead of only the final FCF."""
+    revenue = calculate_revenue_schedule(initial_revenue, growth_rate, term)
+    gross_profit = calculate_gross_profit_schedule(revenue, gross_margin)
+    depex = capex / term
+    opex_schedule = calculate_opex_schedule(
+        revenue, base_opex, opex_step_up_threshold, opex_step_up_pct
+    )
+    nwc_balance = calculate_nwc_schedule(revenue, nwcreq, term)
+
+    rows = []
+    for t in range(term + 1):
+        prior_balance = nwc_balance[t - 1] if t > 0 else 0
+        delta_nwc = nwc_balance[t] - prior_balance
+        delta_nwc_cf = -delta_nwc
+
+        if t == 0:
+            depreciation = 0.0
+            ebit = 0.0
+            taxes = 0.0
+            nopat = 0.0
+            operating_cf = 0.0
+        else:
+            depreciation = depex
+            ebit = gross_profit[t] - opex_schedule[t] - depreciation
+            taxes = ebit * taxrate
+            nopat = ebit - taxes
+            operating_cf = nopat + depreciation
+
+        capex_line = -capex if t == 0 else 0.0
+        disposal_line = disposal if t == term else 0.0
+
+        if t == 0:
+            fcf = capex_line + delta_nwc_cf
+        elif t == term:
+            fcf = operating_cf + disposal_line + delta_nwc_cf
+        else:
+            fcf = operating_cf + delta_nwc_cf
+
+        rows.append(
+            {
+                "Period": t,
+                "Revenue": revenue[t],
+                "Gross Profit": gross_profit[t],
+                "Opex": opex_schedule[t],
+                "Depreciation": depreciation,
+                "EBIT": ebit,
+                "Taxes": taxes,
+                "NOPAT": nopat,
+                "Operating CF": operating_cf,
+                "Delta NWC": delta_nwc_cf,
+                "CapEx": capex_line,
+                "Disposal": disposal_line,
+                "FCF": fcf,
+            }
+        )
+
+    return pd.DataFrame(rows)
 
 
 # PRO FORMA CASH FLOWS
@@ -168,7 +242,6 @@ def calculate_payback(cf_schedule):
     return last_neg_period + remaining / next_period_cf
 
 
-# TODO:
 # GO decision
 def is_go(irr, payback_period, management_target, npv, discrate):
     # Set default decision as no go
